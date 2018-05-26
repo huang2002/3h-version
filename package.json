@@ -1,0 +1,31 @@
+{
+    "name": "3h-version",
+    "version": "1.0.1",
+    "description": "A package version manager.",
+    "main": "3h-version.js",
+    "bin": "cli.js",
+    "preferGlobal": true,
+    "scripts": {
+        "test": "node cli.js -h"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/huang2002/3h-version.git"
+    },
+    "keywords": [
+        "version",
+        "package",
+        "manager",
+        "semver",
+        "3h"
+    ],
+    "author": "3h",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/huang2002/3h-version/issues"
+    },
+    "homepage": "https://github.com/huang2002/3h-version#readme",
+    "dependencies": {
+        "3h-cli": "^1.4.0"
+    }
+}
