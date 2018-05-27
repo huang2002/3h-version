@@ -1,6 +1,6 @@
 {
     "name": "3h-version",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A package version manager.",
     "main": "3h-version.js",
     "bin": "cli.js",

@@ -33,7 +33,7 @@ A package version manager.
   -c, --chk             Check current version.
 
   -i, --inc  <level>    Increase the version by <level>,
-                        where<level> is "major",
+                        where <level> is "major",
                         "minor" or "patch"(default).
 
   -p, --pre  <tag>      Pre-release tag. (If this arg

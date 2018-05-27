@@ -186,7 +186,7 @@ const cli = CLI.create({
     alias: ['-inc'],
     val: 'level',
     help: 'Increase the version by <level>,\n' +
-        'where<level> is "major",\n' +
+        'where <level> is "major",\n' +
         '"minor" or "patch"(default).'
 }).arg({
     name: 'p',
