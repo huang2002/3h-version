@@ -10,7 +10,7 @@ const Version = {
     },
 
     /**
-     * @description Parse the version string into numbers
+     * @description Parse the version string.
      * @param {string} str
      * @returns {[number, number, number, string] | null}
      */

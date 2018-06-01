@@ -1,6 +1,6 @@
 #! node
 
-const Version = require('./3h-version'),
+const Version = require('./lib'),
     path = require('path'),
     fs = require('fs'),
     CLI = require('3h-cli');

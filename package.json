@@ -1,8 +1,8 @@
 {
     "name": "3h-version",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "description": "A package version manager.",
-    "main": "3h-version.js",
+    "main": "lib.js",
     "bin": "cli.js",
     "preferGlobal": true,
     "scripts": {
