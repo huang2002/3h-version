@@ -3,9 +3,17 @@
 const Version = require('./lib'),
     path = require('path'),
     fs = require('fs'),
+    Time = require('3h-time'),
     CLI = require('3h-cli');
 
 const { parse, check, increase } = Version;
+
+const defaultTimeFormat = 'YYYY-MM-DD',
+    defaultTabSize = '4',
+    defaultFile = 'package.json',
+    defaultEncoding = 'utf8',
+    defaultLogFile = 'CHANGELOG.md',
+    defaultHeadingGap = ' - ';
 
 /**
  * Pick the value from v1 if v1 isn't undefined, otherwise, return v2.
@@ -46,7 +54,7 @@ function createValidationMsg(prefix, curVer, valid) {
  * @param {number} tabSize
  */
 function writeJson(file, encoding, object, tabSize) {
-    fs.writeFileSync(file, JSON.stringify(object, undefined, tabSize), { encoding });
+    fs.writeFileSync(file, JSON.stringify(object, undefined, tabSize), encoding);
 }
 
 /**
@@ -65,34 +73,34 @@ function logVersionChange(from, to) {
 const executor = args => {
 
     if (args.has('h') || args.size === 0) {
-        return cli.help();
+        cli.help();
     }
 
-    const file = path.join(process.cwd(), pick(args.get('f'), 'package.json'));
+    const file = path.join(process.cwd(), pick(args.get('f'), defaultFile));
     if (!fs.existsSync(file)) {
         logErrorAndExit(`File not found: "${file}"!`);
     }
 
-    const encoding = pick(args.get('e'), 'utf8'),
-        content = fs.readFileSync(file, { encoding }),
+    const encoding = pick(args.get('e'), defaultEncoding),
+        content = fs.readFileSync(file, encoding),
         object = JSON.parse(content);
     if (!('version' in object)) {
         logErrorAndExit('Version property not found!');
     }
 
-    const curVer = object.version;
+    let curVer = object.version;
 
     if (args.has('g')) {
-        return console.log(`Current version is: "${curVer}".`);
+        console.log(`Current version is: "${curVer}".`);
     }
 
     const valid = check(curVer),
         validationMsg = createValidationMsg('Current', curVer, valid);
     if (args.has('c')) {
-        return console.log(validationMsg);
+        console.log(validationMsg);
     }
 
-    const rawTabSize = pick(args.get('t'), '4'),
+    const rawTabSize = pick(args.get('t'), defaultTabSize),
         tabSize = Number(rawTabSize);
     if (Number.isNaN(tabSize)) {
         logErrorAndExit(`Invalid tab size: "${rawTabSize}"!`);
@@ -121,7 +129,8 @@ const executor = args => {
 
         object.version = targetVer;
         writeJson(file, encoding, object, tabSize);
-        return logVersionChange(curVer, targetVer);
+        logVersionChange(curVer, targetVer);
+        curVer = object.version;
 
     }
 
@@ -129,17 +138,41 @@ const executor = args => {
         logErrorAndExit(validationMsg);
     }
 
+    const level = pick(args.get('i'), 'patch'),
+        headingLevel = Version.getHeadingLevel(level);
+
     if (args.has('i')) {
 
-        const level = args.get('i')[0] || 'patch';
-        if (!['major', 'minor', 'patch'].includes(level)) {
+        if (headingLevel === -1) {
             logErrorAndExit(`Invalid level: "${level}"!`);
         }
 
         let targetVer = increase(curVer, level) + tag;
         object.version = targetVer;
         writeJson(file, encoding, object, tabSize);
-        return logVersionChange(curVer, targetVer);
+        logVersionChange(curVer, targetVer);
+        curVer = object.version;
+
+    }
+
+    if (args.has('l')) {
+
+        const logs = args.get('l'),
+            logFile = pick(args.get('-log-file'), defaultLogFile),
+            timeFormat = pick(args.get('-time-format'), defaultTimeFormat),
+            headingGap = pick(args.get('-heading-gap'), defaultHeadingGap),
+            originalContent = fs.existsSync(logFile) ? fs.readFileSync(logFile, encoding) : '';
+
+        let newContent = '\n';
+        logs.forEach(log => {
+            newContent = '- ' + log + '\n' + newContent;
+        });
+        newContent = '#'.repeat(headingLevel) + ' ' +
+            curVer + headingGap + Time.get(timeFormat) +
+            '\n\n' + newContent;
+
+        fs.writeFileSync(logFile, newContent + originalContent, encoding);
+        console.log(`Changelogs are written into "${logFile}":\n` + newContent);
 
     }
 
@@ -149,8 +182,8 @@ const cli = CLI.create({
     name: '3h-version',
     title: 'A package version manager.',
     tabSize: 2,
-    nameSize: 11,
-    gapSize: 11,
+    nameSize: 16,
+    gapSize: 12,
     lineGapSize: 1
 }).arg({
     name: 'h',
@@ -161,13 +194,13 @@ const cli = CLI.create({
     alias: ['-file'],
     val: 'file',
     help: 'The file to operate on.\n' +
-        'Default: package.json'
+        'Default: ' + defaultFile
 }).arg({
     name: 'e',
     alias: ['-enc'],
     val: 'encoding',
     help: 'The encoding of the file.\n' +
-        'Default: utf8'
+        'Default: ' + defaultEncoding
 }).arg({
     name: 'g',
     alias: ['-get'],
@@ -198,9 +231,29 @@ const cli = CLI.create({
         'be "beta".)'
 }).arg({
     name: 't',
-    alias: ['-tab'],
+    alias: ['-tab-size'],
     val: 'size',
-    help: 'The tab size. (Default: 4)'
+    help: `The tab size. (Default: ${defaultTabSize})`
+}).arg({
+    name: 'l',
+    alias: ['-log'],
+    val: 'logs',
+    help: 'Changelogs.\n' +
+        'e.g. --log "change 1" "change 2"'
+}).arg({
+    name: '-log-file',
+    val: 'file',
+    help: 'The changelog file.\n' +
+        'Default: ' + defaultLogFile
+}).arg({
+    name: '-time-format',
+    val: 'format',
+    help: 'Time format passed to `3h-time`.\n' +
+        'Default: ' + defaultTimeFormat
+}).arg({
+    name: '-heading-gap',
+    val: 'gap',
+    help: `Heading gap. (Default: "${defaultHeadingGap}")`
 }).on('extra', key => {
     console.error(`Unknown arg "${key}"!`);
     process.exit(1);

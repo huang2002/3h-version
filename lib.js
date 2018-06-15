@@ -44,6 +44,15 @@ const Version = {
                 break;
         }
         return ans.join('.');
+    },
+
+    /**
+     * Get the heading level.
+     * @param {number} level
+     * @returns {number}
+     */
+    getHeadingLevel(level) {
+        return ['major', 'minor', 'patch'].indexOf(level) + 1;
     }
 
 };
