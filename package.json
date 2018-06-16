@@ -1,6 +1,6 @@
 {
     "name": "3h-version",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "description": "A package version manager.",
     "main": "lib.js",
     "bin": "cli.js",
@@ -16,6 +16,8 @@
         "version",
         "package",
         "manager",
+        "changlog",
+        "markdown",
         "semver",
         "3h"
     ],

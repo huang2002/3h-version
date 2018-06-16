@@ -1,12 +1,13 @@
-#! node
+#!node
 
 const Version = require('./lib'),
     path = require('path'),
     fs = require('fs'),
+    readline = require('readline'),
     Time = require('3h-time'),
     CLI = require('3h-cli');
 
-const { parse, check, increase } = Version;
+const { check, increase } = Version;
 
 const defaultTimeFormat = 'YYYY-MM-DD',
     defaultTabSize = '4',
@@ -161,18 +162,47 @@ const executor = args => {
             logFile = pick(args.get('-log-file'), defaultLogFile),
             timeFormat = pick(args.get('-time-format'), defaultTimeFormat),
             headingGap = pick(args.get('-heading-gap'), defaultHeadingGap),
-            originalContent = fs.existsSync(logFile) ? fs.readFileSync(logFile, encoding) : '';
+            logFileExists = fs.existsSync(logFile),
+            originalContent = logFileExists ? fs.readFileSync(logFile, encoding) : '';
 
-        let newContent = '\n';
-        logs.forEach(log => {
-            newContent = '- ' + log + '\n' + newContent;
-        });
-        newContent = '#'.repeat(headingLevel) + ' ' +
-            curVer + headingGap + Time.get(timeFormat) +
-            '\n\n' + newContent;
+        if (logs.length > 0) {
+            log();
+        } else {
+            console.log(
+                'Please input the changelogs:\n' +
+                '( End with an empty line. )\n'
+            );
+            const rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+            rl.setPrompt('- ');
+            rl.prompt();
+            rl.on('line', line => {
+                if (line.length > 0) {
+                    logs.push(line);
+                    rl.prompt();
+                } else {
+                    readline.moveCursor(process.stdout, 2, -1);
+                    console.log('(end)\n');
+                    log();
+                    rl.close();
+                }
+            });
+        }
 
-        fs.writeFileSync(logFile, newContent + originalContent, encoding);
-        console.log(`Changelogs are written into "${logFile}":\n` + newContent);
+        function log() {
+            let newContent = '';
+            logs.forEach(log => {
+                newContent = '- ' + log + '\n' + newContent;
+            });
+            newContent = '#'.repeat(headingLevel) + ' ' +
+                curVer + headingGap + Time.get(timeFormat) +
+                '\n\n' + newContent;
+
+            fs.writeFileSync(logFile, newContent + (logFileExists ? '\n' : '') + originalContent, encoding);
+            console.log(`Changelogs are written into "${logFile}":\n` + newContent);
+        }
 
     }
 
@@ -238,8 +268,10 @@ const cli = CLI.create({
     name: 'l',
     alias: ['-log'],
     val: 'logs',
-    help: 'Changelogs.\n' +
-        'e.g. --log "change 1" "change 2"'
+    help: 'Changelogs. (e.g. -l "..." "...")\n' +
+        'If this arg is followed by nothing,\n' +
+        'then changelogs will be read from\n' +
+        'the command line.'
 }).arg({
     name: '-log-file',
     val: 'file',
