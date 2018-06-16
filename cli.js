@@ -193,7 +193,7 @@ const executor = args => {
 
         function log() {
             let newContent = '';
-            logs.forEach(log => {
+            logs.reverse().forEach(log => {
                 newContent = '- ' + log + '\n' + newContent;
             });
             newContent = '#'.repeat(headingLevel) + ' ' +
