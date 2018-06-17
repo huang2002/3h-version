@@ -1,6 +1,6 @@
 {
     "name": "3h-version",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "description": "A package version manager.",
     "main": "lib.js",
     "bin": "cli.js",
@@ -28,7 +28,7 @@
     },
     "homepage": "https://github.com/huang2002/3h-version#readme",
     "dependencies": {
-        "3h-cli": "^1.4.0",
-        "3h-time": "^0.1.0"
+        "3h-cli": "^1.4.1",
+        "3h-time": "^0.1.2"
     }
 }
