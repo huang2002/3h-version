@@ -1,4 +1,4 @@
-#!node
+#!/usr/bin/env node
 
 const Version = require('./lib'),
     path = require('path'),
