@@ -196,7 +196,7 @@ const executor = args => {
             logs.reverse().forEach(log => {
                 newContent = '- ' + log + '\n' + newContent;
             });
-            newContent = '#'.repeat(headingLevel) + ' ' +
+            newContent = '#'.repeat(level === args.get('i') ? headingLevel : Version.getHeadingLevelFromVersion(curVer)) + ' ' +
                 curVer + headingGap + Time.get(timeFormat) +
                 '\n\n' + newContent;
 

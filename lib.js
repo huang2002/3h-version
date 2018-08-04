@@ -53,6 +53,27 @@ const Version = {
      */
     getHeadingLevel(level) {
         return ['major', 'minor', 'patch'].indexOf(level) + 1;
+    },
+
+    /**
+     * Get the heading level from version.
+     * @param {string} version 
+     */
+    getHeadingLevelFromVersion(version) {
+        const versions = Version.parse(version);
+        if (versions) {
+            if (versions[2] === 0) {
+                if (versions[1] === 0) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            } else {
+                return 3;
+            }
+        } else {
+            return 0;
+        }
     }
 
 };
