@@ -162,8 +162,7 @@ const executor = args => {
             logFile = pick(args.get('-log-file'), defaultLogFile),
             timeFormat = pick(args.get('-time-format'), defaultTimeFormat),
             headingGap = pick(args.get('-heading-gap'), defaultHeadingGap),
-            logFileExists = fs.existsSync(logFile),
-            originalContent = logFileExists ? fs.readFileSync(logFile, encoding) : '';
+            logFileExists = fs.existsSync(logFile);
 
         if (logs.length > 0) {
             log();
@@ -200,7 +199,7 @@ const executor = args => {
                 curVer + headingGap + Time.get(timeFormat) +
                 '\n\n' + newContent;
 
-            fs.writeFileSync(logFile, newContent + (logFileExists ? '\n' : '') + originalContent, encoding);
+            fs.writeFileSync(logFile, newContent + (logFileExists ? '\n' : '') + (logFileExists ? fs.readFileSync(logFile, encoding) : ''), encoding);
             console.log(`Changelogs are written into "${logFile}":\n` + newContent);
         }
 
